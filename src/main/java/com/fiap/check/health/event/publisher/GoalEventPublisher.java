@@ -54,6 +54,10 @@ public class GoalEventPublisher {
             
         } catch (JsonProcessingException e) {
             log.error("Erro ao serializar evento goal.created para JSON", e);
+            throw new RuntimeException("Falha ao serializar evento goal.created", e);
+        } catch (Exception e) {
+            log.error("Erro ao publicar evento goal.created para o Kafka", e);
+            throw new RuntimeException("Falha ao publicar evento goal.created", e);
         }
     }
 }
