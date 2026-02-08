@@ -11,9 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Frequencia {
+public class Progress {
     
-    private String periodicidade; // diária, semanal etc.
+    private Integer completed;
     
-    private Integer vezesPorPeriodo;
+    private Integer total;
+    
+    private String unit; // days, weeks etc.
 }

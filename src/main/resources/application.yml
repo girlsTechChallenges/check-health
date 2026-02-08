@@ -27,6 +27,21 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+  
+  # Configurações do Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      client-id: check-health-producer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        retry.backoff.ms: 1000
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
 
 management:
   endpoints:

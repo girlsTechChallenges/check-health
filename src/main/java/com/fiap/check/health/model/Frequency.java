@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Recompensa {
+public class Frequency {
     
-    private Integer pontos;
+    private String periodicity; // daily, weekly etc.
     
-    private String badge;
+    private Integer timesPerPeriod;
 }

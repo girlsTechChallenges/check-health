@@ -11,11 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Progresso {
+public class Reward {
     
-    private Integer concluido;
+    private Integer points;
     
-    private Integer total;
-    
-    private String unidade; // dias, semanas etc.
+    private String badge;
 }
