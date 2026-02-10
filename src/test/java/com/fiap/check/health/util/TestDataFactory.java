@@ -77,6 +77,8 @@ public class TestDataFactory {
                     .userId("user123")
                     .title("Exercitar-se diariamente")
                     .description("Fazer 30 minutos de exercícios por dia")
+                    .category(GoalRequest.CategoryEnum.SAUDE_FISICA)
+                    .type(GoalRequest.TypeEnum.DAILY)
                     .startDate(LocalDate.of(2026, 2, 8))
                     .endDate(LocalDate.of(2026, 3, 10))
                     .notifications(true)
@@ -94,6 +96,8 @@ public class TestDataFactory {
                     .userId(baseRequest.getUserId())
                     .title(baseRequest.getTitle())
                     .description(baseRequest.getDescription())
+                    .category(baseRequest.getCategory())
+                    .type(baseRequest.getType())
                     .startDate(baseRequest.getStartDate())
                     .endDate(baseRequest.getEndDate())
                     .notifications(baseRequest.getNotifications())
@@ -112,6 +116,8 @@ public class TestDataFactory {
                     .userId(baseRequest.getUserId())
                     .title(baseRequest.getTitle())
                     .description(baseRequest.getDescription())
+                    .category(baseRequest.getCategory())
+                    .type(baseRequest.getType())
                     .startDate(baseRequest.getStartDate())
                     .endDate(baseRequest.getEndDate())
                     .notifications(baseRequest.getNotifications())
@@ -121,31 +127,60 @@ public class TestDataFactory {
 
         public static GoalRequest createInvalidGoalRequest() {
             return GoalRequest.builder()
-                    .userId(null) // Campo obrigatório ausente
-                    .title(null) // Campo obrigatório ausente
+                    .userId(null) // Campo obrigatório nulo
+                    .title("") // Título vazio
                     .build();
         }
     }
 
     public static class GoalResponseBuilder {
         public static GoalResponse createValidGoalResponse() {
+            GoalResponseProgress progress = GoalResponseProgress.builder()
+                    .completed(5)
+                    .total(30)
+                    .unit("days")
+                    .build();
+
+            GoalResponseGamification gamification = GoalResponseGamification.builder()
+                    .pointsEarned(150)
+                    .badge("beginner")
+                    .userLevel(2)
+                    .build();
+
             return GoalResponse.builder()
                     .goalId("1")
                     .userId("user123")
                     .title("Exercitar-se diariamente")
                     .status("active")
                     .createdAt(OffsetDateTime.of(2026, 2, 8, 10, 30, 0, 0, ZoneOffset.UTC))
+                    .progress(progress)
+                    .gamification(gamification)
+                    .message("Meta criada com sucesso!")
                     .build();
         }
 
         public static GoalResponse createCompletedGoalResponse() {
-            GoalResponse baseResponse = createValidGoalResponse();
+            GoalResponseProgress progress = GoalResponseProgress.builder()
+                    .completed(30)
+                    .total(30)
+                    .unit("days")
+                    .build();
+
+            GoalResponseGamification gamification = GoalResponseGamification.builder()
+                    .pointsEarned(500)
+                    .badge("achiever")
+                    .userLevel(5)
+                    .build();
+
             return GoalResponse.builder()
-                    .goalId(baseResponse.getGoalId())
-                    .userId(baseResponse.getUserId())
-                    .title(baseResponse.getTitle())
-                    .createdAt(baseResponse.getCreatedAt())
+                    .goalId("1")
+                    .userId("user123")
+                    .title("Exercitar-se diariamente")
                     .status("completed")
+                    .createdAt(OffsetDateTime.of(2026, 2, 8, 10, 30, 0, 0, ZoneOffset.UTC))
+                    .progress(progress)
+                    .gamification(gamification)
+                    .message("Parabéns! Meta concluída com sucesso!")
                     .build();
         }
     }
@@ -154,13 +189,35 @@ public class TestDataFactory {
         public static ProgressRequest createValidProgressRequest() {
             return ProgressRequest.builder()
                     .increment(1)
+                    .unit("days")
                     .build();
         }
 
-        public static ProgressRequest createProgressRequestWithCustomIncrement(int increment) {
+        public static ProgressRequest createLargeProgressRequest() {
+            return ProgressRequest.builder()
+                    .increment(10)
+                    .unit("days")  
+                    .build();
+        }
+
+        public static ProgressRequest createFinalProgressRequest() {
+            return ProgressRequest.builder()
+                    .increment(5)
+                    .unit("days")
+                    .build();
+        }
+
+        public static ProgressRequest createProgressRequestWithIncrement(int increment) {
             return ProgressRequest.builder()
                     .increment(increment)
+                    .unit("days")
                     .build();
+        }
+
+        public static ProgressRequest createInvalidProgressRequest() {
+            return ProgressRequest.builder()
+                    .unit("days")
+                    .build(); // Sem increment obrigatório
         }
     }
 

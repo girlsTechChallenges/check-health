@@ -6,7 +6,6 @@ import com.fiap.check.health.persistence.entity.Goal;
 
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 

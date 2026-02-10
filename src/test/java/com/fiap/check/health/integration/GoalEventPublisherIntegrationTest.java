@@ -1,6 +1,5 @@
 package com.fiap.check.health.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.check.health.dto.event.GoalCreatedEvent;
 import com.fiap.check.health.event.publisher.GoalEventPublisher;
@@ -9,6 +8,7 @@ import com.fiap.check.health.persistence.entity.Goal;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,6 @@ import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -59,11 +58,11 @@ class GoalEventPublisherIntegrationTest {
     private BlockingQueue<ConsumerRecord<String, String>> records;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws InterruptedException {
         goalEventPublisher = new GoalEventPublisher(kafkaTemplate, objectMapper);
         
         // Configurar consumer para verificar mensagens
-        Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("test", "false", embeddedKafkaBroker);
+        Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("test-group", "false", embeddedKafkaBroker);
         consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         DefaultKafkaConsumerFactory<String, String> consumerFactory = new DefaultKafkaConsumerFactory<>(consumerProps, new StringDeserializer(), new StringDeserializer());
         ContainerProperties containerProperties = new ContainerProperties(TOPIC_GOAL_CREATED);
@@ -71,7 +70,16 @@ class GoalEventPublisherIntegrationTest {
         records = new LinkedBlockingQueue<>();
         container.setupMessageListener((MessageListener<String, String>) records::add);
         container.start();
-        ContainerTestUtils.waitForAssignment(container, embeddedKafkaBroker.getPartitionsPerTopic());
+        
+        // Aguardar o container inicializar
+        Thread.sleep(3000);
+    }
+    
+    @AfterEach
+    void tearDown() {
+        if (container != null) {
+            container.stop();
+        }
     }
 
     @Test

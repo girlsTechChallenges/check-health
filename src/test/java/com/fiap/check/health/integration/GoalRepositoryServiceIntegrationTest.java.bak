@@ -1,0 +1,371 @@
+package com.fiap.check.health.integration;
+
+import com.fiap.check.health.model.GoalCategory;
+import com.fiap.check.health.persistence.entity.Goal;
+import com.fiap.check.health.persistence.repository.GoalRepository;
+import com.fiap.check.health.service.GoalService;
+import com.fiap.check.health.util.TestDataFactory;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Testes de Integração para GoalRepository e GoalService
+ * 
+ * Foca especificamente na validação de consultas, filtros e 
+ * regras de negócio que envolvem a persistência de dados.
+ * 
+ * Cenários validados:
+ * - Consultas por categoria de meta
+ * - Consultas por usuário
+ * - Consultas por status
+ * - Consultas por período de data
+ * - Validação de integridade referencial
+ * - Validação de regras de negócio na persistência
+ */
+@SpringBootTest
+@ActiveProfiles("test")
+@DisplayName("Goal Repository and Service Integration Tests")
+@Transactional
+class GoalRepositoryServiceIntegrationTest {
+
+    @Autowired
+    private GoalRepository goalRepository;
+
+    @Autowired
+    private GoalService goalService;
+
+    @BeforeEach
+    void setUp() {
+        goalRepository.deleteAll();
+    }
+
+    @Nested
+    @DisplayName("Consultas por Categoria")
+    class ConsultasPorCategoria {
+
+        @Test
+        @DisplayName("Deve retornar metas filtradas por categoria SAUDE_FISICA")
+        void deveRetornarMetasFiltadasPorCategoriaSaudeFisica() {
+            // Given - Metas de diferentes categorias
+            Goal metaSaudeFisica1 = createGoalWithCategory(GoalCategory.SAUDE_FISICA, "Meta 1");
+            Goal metaSaudeFisica2 = createGoalWithCategory(GoalCategory.SAUDE_FISICA, "Meta 2");
+            Goal metaNutricao = createGoalWithCategory(GoalCategory.NUTRICAO, "Meta 3");
+
+            goalRepository.saveAll(List.of(metaSaudeFisica1, metaSaudeFisica2, metaNutricao));
+
+            // When - Buscar por categoria específica
+            List<Goal> result = goalRepository.findByCategory(GoalCategory.SAUDE_FISICA);
+
+            // Then - Deve retornar apenas metas de saúde física
+            assertThat(result).hasSize(2);
+            assertThat(result)
+                    .extracting(Goal::getCategory)
+                    .containsOnly(GoalCategory.SAUDE_FISICA);
+            assertThat(result)
+                    .extracting(Goal::getTitle)
+                    .containsExactlyInAnyOrder("Meta 1", "Meta 2");
+        }
+
+        @Test
+        @DisplayName("Deve retornar lista vazia para categoria sem metas")
+        void deveRetornarListaVaziaParaCategoriaSemMetas() {
+            // Given - Apenas metas de uma categoria
+            Goal meta = createGoalWithCategory(GoalCategory.SAUDE_FISICA, "Meta Física");
+            goalRepository.save(meta);
+
+            // When - Buscar por categoria que não tem metas
+            List<Goal> result = goalRepository.findByCategory(GoalCategory.SONO);
+
+            // Then - Lista deve estar vazia
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("Consultas por Usuário")
+    class ConsultasPorUsuario {
+
+        @Test
+        @DisplayName("Deve retornar apenas metas do usuário específico")
+        void deveRetornarApesasMetasDoUsuarioEspecifico() {
+            // Given - Metas de diferentes usuários
+            Goal metaUser1Meta1 = createGoalWithUser("user123", "Meta 1 User123");
+            Goal metaUser1Meta2 = createGoalWithUser("user123", "Meta 2 User123");
+            Goal metaUser2 = createGoalWithUser("user456", "Meta User456");
+
+            goalRepository.saveAll(List.of(metaUser1Meta1, metaUser1Meta2, metaUser2));
+
+            // When - Buscar por usuário específico
+            List<Goal> result = goalRepository.findByUserId("user123");
+
+            // Then - Deve retornar apenas metas do user123
+            assertThat(result).hasSize(2);
+            assertThat(result)
+                    .extracting(Goal::getUserId)
+                    .containsOnly("user123");
+            assertThat(result)
+                    .extracting(Goal::getTitle)
+                    .containsExactlyInAnyOrder("Meta 1 User123", "Meta 2 User123");
+        }
+
+        @Test
+        @DisplayName("Deve retornar lista vazia para usuário inexistente")
+        void deveRetornarListaVaziaParaUsuarioInexistente() {
+            // Given - Meta de usuário específico
+            Goal meta = createGoalWithUser("user123", "Meta");
+            goalRepository.save(meta);
+
+            // When - Buscar por usuário que não tem metas
+            List<Goal> result = goalRepository.findByUserId("userInexistente");
+
+            // Then - Lista deve estar vazia
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("Consultas por Status")
+    class ConsultasPorStatus {
+
+        @Test
+        @DisplayName("Deve retornar apenas metas ativas")
+        void deveRetornarApenasMetasAtivas() {
+            // Given - Metas com diferentes status
+            Goal metaAtiva1 = createGoalWithStatus("active", "Meta Ativa 1");
+            Goal metaAtiva2 = createGoalWithStatus("active", "Meta Ativa 2");
+            Goal metaCompleta = createGoalWithStatus("completed", "Meta Completa");
+            Goal metaArquivada = createGoalWithStatus("archived", "Meta Arquivada");
+
+            goalRepository.saveAll(List.of(metaAtiva1, metaAtiva2, metaCompleta, metaArquivada));
+
+            // When - Buscar apenas metas ativas
+            List<Goal> result = goalRepository.findByStatus("active");
+
+            // Then - Deve retornar apenas metas ativas
+            assertThat(result).hasSize(2);
+            assertThat(result)
+                    .extracting(Goal::getStatus)
+                    .containsOnly("active");
+            assertThat(result)
+                    .extracting(Goal::getTitle)
+                    .containsExactlyInAnyOrder("Meta Ativa 1", "Meta Ativa 2");
+        }
+
+        @Test
+        @DisplayName("Deve retornar metas por usuário e status combinados")
+        void deveRetornarMetasPorUsuarioEStatusCombinados() {
+            // Given - Metas de diferentes usuários e status
+            Goal metaUser1Ativa = createGoalWithUserAndStatus("user123", "active", "Meta User123 Ativa");
+            Goal metaUser1Completa = createGoalWithUserAndStatus("user123", "completed", "Meta User123 Completa");
+            Goal metaUser2Ativa = createGoalWithUserAndStatus("user456", "active", "Meta User456 Ativa");
+
+            goalRepository.saveAll(List.of(metaUser1Ativa, metaUser1Completa, metaUser2Ativa));
+
+            // When - Buscar por usuário específico e status específico
+            List<Goal> result = goalRepository.findByUserIdAndStatus("user123", "active");
+
+            // Then - Deve retornar apenas a meta ativa do user123
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getUserId()).isEqualTo("user123");
+            assertThat(result.get(0).getStatus()).isEqualTo("active");
+            assertThat(result.get(0).getTitle()).isEqualTo("Meta User123 Ativa");
+        }
+    }
+
+    @Nested
+    @DisplayName("Consultas por Período")
+    class ConsultasPorPeriodo {
+
+        @Test
+        @DisplayName("Deve retornar metas dentro do período especificado")
+        void deveRetornarMetasDentroDoPeriodoEspecificado() {
+            // Given - Metas com diferentes datas de início
+            LocalDate dataBase = LocalDate.of(2026, 2, 10);
+            
+            Goal metaAnterior = createGoalWithStartDate(dataBase.minusDays(5), "Meta Anterior");
+            Goal metaDentro1 = createGoalWithStartDate(dataBase, "Meta Dentro 1");
+            Goal metaDentro2 = createGoalWithStartDate(dataBase.plusDays(3), "Meta Dentro 2");
+            Goal metaPosterior = createGoalWithStartDate(dataBase.plusDays(10), "Meta Posterior");
+
+            goalRepository.saveAll(List.of(metaAnterior, metaDentro1, metaDentro2, metaPosterior));
+
+            // When - Buscar metas no período
+            LocalDate startDate = dataBase;
+            LocalDate endDate = dataBase.plusDays(7);
+            List<Goal> result = goalRepository.findByStartDateBetween(startDate, endDate);
+
+            // Then - Deve retornar apenas metas dentro do período
+            assertThat(result).hasSize(2);
+            assertThat(result)
+                    .extracting(Goal::getTitle)
+                    .containsExactlyInAnyOrder("Meta Dentro 1", "Meta Dentro 2");
+        }
+
+        @Test
+        @DisplayName("Deve retornar lista vazia para período sem metas")
+        void deveRetornarListaVaziaParaPeriodoSemMetas() {
+            // Given - Meta fora do período de busca
+            LocalDate dataBase = LocalDate.of(2026, 2, 10);
+            Goal meta = createGoalWithStartDate(dataBase.minusDays(10), "Meta Antiga");
+            goalRepository.save(meta);
+
+            // When - Buscar em período que não tem metas
+            LocalDate startDate = dataBase.plusDays(5);
+            LocalDate endDate = dataBase.plusDays(15);
+            List<Goal> result = goalRepository.findByStartDateBetween(startDate, endDate);
+
+            // Then - Lista deve estar vazia
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("Validações de Integridade")
+    class ValidacoesIntegridade {
+
+        @Test
+        @DisplayName("Deve manter integridade ao salvar múltiplas metas simultaneamente")
+        void deveManterIntegridadeAoSalvarMultiplasMetasSimultaneamente() {
+            // Given - Multiple metas para o mesmo usuário
+            List<Goal> metas = List.of(
+                createGoalWithUser("user123", "Meta 1"),
+                createGoalWithUser("user123", "Meta 2"),
+                createGoalWithUser("user123", "Meta 3")
+            );
+
+            // When - Salvar todas de uma vez
+            List<Goal> savedMetas = goalRepository.saveAll(metas);
+
+            // Then - Todas devem ter sido salvas com IDs únicos
+            assertThat(savedMetas).hasSize(3);
+            assertThat(savedMetas)
+                    .extracting(Goal::getGoalId)
+                    .doesNotContainNull()
+                    .doesNotHaveDuplicates();
+
+            // Then - Verificar que todas estão no banco
+            List<Goal> metasNoBanco = goalRepository.findByUserId("user123");
+            assertThat(metasNoBanco).hasSize(3);
+        }
+
+        @Test
+        @DisplayName("Deve preservar timestamps de criação automaticamente")
+        void devePreservarTimestampsDecacacaoAutomaticamente() {
+            // Given - Meta sem createdAt definido
+            Goal meta = TestDataFactory.GoalEntityBuilder.createValidGoalEntity();
+            meta.setGoalId(null);
+            meta.setCreatedAt(null); // Será preenchido automaticamente
+
+            // When - Salvar meta
+            Goal savedMeta = goalRepository.save(meta);
+
+            // Then - createdAt deve ter sido preenchido automaticamente
+            assertThat(savedMeta.getCreatedAt()).isNotNull();
+            assertThat(savedMeta.getCreatedAt()).isBefore(java.time.LocalDateTime.now().plusSeconds(1));
+        }
+    }
+
+    @Nested
+    @DisplayName("Cenários de Regras de Negócio")
+    class CenariosRegrasNegocio {
+
+        @Test
+        @DisplayName("Deve permitir múltiplas metas ativas para mesmo usuário")
+        void devePermitirMultiplasMetasAativasParaMesmoUsuario() {
+            // Given - Múltiplas metas ativas para mesmo usuário
+            List<Goal> metasAtivas = List.of(
+                createGoalWithUserAndStatus("user123", "active", "Meta Ativa 1"),
+                createGoalWithUserAndStatus("user123", "active", "Meta Ativa 2"),
+                createGoalWithUserAndStatus("user123", "active", "Meta Ativa 3")
+            );
+
+            // When - Salvar todas as metas ativas
+            goalRepository.saveAll(metasAtivas);
+
+            // Then - Deve permitir múltiplas metas ativas
+            List<Goal> metasDoUsuario = goalRepository.findByUserIdAndStatus("user123", "active");
+            assertThat(metasDoUsuario).hasSize(3);
+        }
+
+        @Test
+        @DisplayName("Deve permitir metas com mesma categoria para usuários diferentes")
+        void devePermitirMetasComMesmaCategoriaParaUsuariosDiferentes() {
+            // Given - Metas da mesma categoria para usuários diferentes
+            Goal metaUser1 = createGoalWithUserAndCategory("user123", GoalCategory.SAUDE_FISICA, "Meta User123");
+            Goal metaUser2 = createGoalWithUserAndCategory("user456", GoalCategory.SAUDE_FISICA, "Meta User456");
+
+            // When - Salvar ambas
+            goalRepository.saveAll(List.of(metaUser1, metaUser2));
+
+            // Then - Ambas devem ser permitidas
+            List<Goal> metasSaudeFisica = goalRepository.findByCategory(GoalCategory.SAUDE_FISICA);
+            assertThat(metasSaudeFisica).hasSize(2);
+            assertThat(metasSaudeFisica)
+                    .extracting(Goal::getUserId)
+                    .containsExactlyInAnyOrder("user123", "user456");
+        }
+    }
+
+    // Métodos auxiliares para criação de dados de teste
+
+    private Goal createGoalWithCategory(GoalCategory category, String title) {
+        Goal goal = TestDataFactory.GoalEntityBuilder.createValidGoalEntity();
+        goal.setGoalId(null);
+        goal.setCategory(category);
+        goal.setTitle(title);
+        return goal;
+    }
+
+    private Goal createGoalWithUser(String userId, String title) {
+        Goal goal = TestDataFactory.GoalEntityBuilder.createValidGoalEntity();
+        goal.setGoalId(null);
+        goal.setUserId(userId);
+        goal.setTitle(title);
+        return goal;
+    }
+
+    private Goal createGoalWithStatus(String status, String title) {
+        Goal goal = TestDataFactory.GoalEntityBuilder.createValidGoalEntity();
+        goal.setGoalId(null);
+        goal.setStatus(status);
+        goal.setTitle(title);
+        return goal;
+    }
+
+    private Goal createGoalWithUserAndStatus(String userId, String status, String title) {
+        Goal goal = TestDataFactory.GoalEntityBuilder.createValidGoalEntity();
+        goal.setGoalId(null);
+        goal.setUserId(userId);
+        goal.setStatus(status);
+        goal.setTitle(title);
+        return goal;
+    }
+
+    private Goal createGoalWithStartDate(LocalDate startDate, String title) {
+        Goal goal = TestDataFactory.GoalEntityBuilder.createValidGoalEntity();
+        goal.setGoalId(null);
+        goal.setStartDate(startDate);
+        goal.setTitle(title);
+        return goal;
+    }
+
+    private Goal createGoalWithUserAndCategory(String userId, GoalCategory category, String title) {
+        Goal goal = TestDataFactory.GoalEntityBuilder.createValidGoalEntity();
+        goal.setGoalId(null);
+        goal.setUserId(userId);
+        goal.setCategory(category);
+        goal.setTitle(title);
+        return goal;
+    }
+}

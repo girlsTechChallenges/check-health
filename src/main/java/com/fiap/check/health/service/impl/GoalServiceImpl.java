@@ -39,6 +39,18 @@ public class GoalServiceImpl implements GoalService {
         Goal goal = goalMapper.toEntity(goalRequest);
         goal.setCreatedAt(LocalDateTime.now());
         goal.setStatus("active");
+        
+        // Inicializar progresso padrão se não estiver definido
+        if (goal.getProgress() == null) {
+            // Calcular total baseado no tipo e datas
+            int total = calculateDefaultTotal(goal);
+            goal.setProgress(com.fiap.check.health.model.Progress.builder()
+                    .completed(0)
+                    .total(total)
+                    .unit(getDefaultUnit(goal.getType()))
+                    .build());
+        }
+        
         Goal savedGoal = goalRepository.save(goal);
         
         // Publica evento de goal criado no Kafka
@@ -118,5 +130,37 @@ public class GoalServiceImpl implements GoalService {
                     return goalMapper.toResponse(savedGoal);
                 })
                 .orElseThrow(() -> new GoalNotFoundException(goalId));
+    }
+    
+    private int calculateDefaultTotal(Goal goal) {
+        if (goal.getStartDate() != null && goal.getEndDate() != null) {
+            long daysDifference = java.time.temporal.ChronoUnit.DAYS.between(goal.getStartDate(), goal.getEndDate());
+            
+            return switch (goal.getType() != null ? goal.getType() : "daily") {
+                case "daily" -> (int) daysDifference + 1; // +1 para incluir o dia final
+                case "weekly" -> (int) ((daysDifference / 7) + 1);
+                case "monthly" -> (int) ((daysDifference / 30) + 1);
+                case "single" -> 1;
+                default -> 30; // valor padrão de 30 dias
+            };
+        }
+        // Valores padrão se as datas não estiverem definidas
+        return switch (goal.getType() != null ? goal.getType() : "daily") {
+            case "daily" -> 30;
+            case "weekly" -> 4;
+            case "monthly" -> 1;
+            case "single" -> 1;
+            default -> 30;
+        };
+    }
+    
+    private String getDefaultUnit(String type) {
+        return switch (type != null ? type : "daily") {
+            case "daily" -> "days";
+            case "weekly" -> "weeks";
+            case "monthly" -> "months";
+            case "single" -> "goal";
+            default -> "days";
+        };
     }
 }
