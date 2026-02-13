@@ -139,7 +139,10 @@ public class GoalServiceImpl implements GoalService {
             return switch (goal.getType() != null ? goal.getType() : "daily") {
                 case "daily" -> (int) daysDifference + 1; // +1 para incluir o dia final
                 case "weekly" -> (int) ((daysDifference / 7) + 1);
-                case "monthly" -> (int) ((daysDifference / 30) + 1);
+                case "monthly" -> {
+                    long monthsDifference = java.time.temporal.ChronoUnit.MONTHS.between(goal.getStartDate(), goal.getEndDate());
+                    yield (int) monthsDifference + 1;
+                }
                 case "single" -> 1;
                 default -> 30; // valor padrão de 30 dias
             };

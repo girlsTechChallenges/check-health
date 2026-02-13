@@ -124,11 +124,17 @@ components:
     GoalRequest:
       type: object
       required:
-        - user_id
-        - title
-        - category
-        - type
-        - start_date
+        - title 
+        - description 
+        - category 
+        - type 
+        - startDate 
+        - endDate 
+        - frequency 
+        - difficulty 
+        - reward 
+        - status 
+        - active
       properties:
         user_id:
           type: string

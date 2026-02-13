@@ -26,6 +26,20 @@ spring:
   docker:
     compose:
       enabled: false
+  
+  # Desabilita Spring Cloud Config para testes
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+
+# Desabilita Eureka Client para testes
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
 
 # Desabilitar alguns recursos para acelerar os testes
 logging:

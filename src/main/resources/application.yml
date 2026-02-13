@@ -1,47 +1,21 @@
 spring:
   application:
     name: check-health
-  
-  datasource:
-    url: jdbc:postgresql://localhost:5432/checkhealth?sslmode=require
-    username: admin
-    password: admin123
-    driver-class-name: org.postgresql.Driver
-    
-    hikari:
-      connection-timeout: 20000
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 300000
-      max-lifetime: 1200000
-      pool-name: CheckHealthHikariPool
-  
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        jdbc:
-          lob:
-            non_contextual_creation: true
-  
-  # Configurações do Kafka
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      client-id: check-health-producer
-      acks: all
-      retries: 3
-      properties:
-        enable.idempotence: true
-        retry.backoff.ms: 1000
-        delivery.timeout.ms: 120000
-        request.timeout.ms: 30000
+  config:
+    import: optional:configserver:http://config-service:8888
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: check-health-service
 
 management:
   endpoints:
