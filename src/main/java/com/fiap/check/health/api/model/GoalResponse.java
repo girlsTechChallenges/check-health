@@ -1,6 +1,7 @@
 package com.fiap.check.health.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fiap.check.health.dto.ArticleResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,4 +43,6 @@ public class GoalResponse {
     
     @JsonProperty("message")
     private String message;
+
+    private ArticleResponse article;
 }

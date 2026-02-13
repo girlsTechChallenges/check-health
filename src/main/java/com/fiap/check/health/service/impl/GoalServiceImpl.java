@@ -1,5 +1,6 @@
 package com.fiap.check.health.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fiap.check.health.api.model.GoalRequest;
 import com.fiap.check.health.api.model.GoalResponse;
 import com.fiap.check.health.api.model.ProgressRequest;
@@ -9,7 +10,6 @@ import com.fiap.check.health.mapper.GoalMapper;
 import com.fiap.check.health.persistence.entity.Goal;
 import com.fiap.check.health.persistence.repository.GoalRepository;
 import com.fiap.check.health.service.GoalService;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +35,7 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional
-    public GoalResponse createGoal(GoalRequest goalRequest) {
+    public GoalResponse createGoal(GoalRequest goalRequest) throws JsonProcessingException {
         Goal goal = goalMapper.toEntity(goalRequest);
         goal.setCreatedAt(LocalDateTime.now());
         goal.setStatus("active");
@@ -65,12 +65,19 @@ public class GoalServiceImpl implements GoalService {
         return goalMapper.toResponse(savedGoal);
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public List<GoalResponse> listGoals() {
         return goalRepository.findAll()
                 .stream()
-                .map(goalMapper::toResponse)
+                .map(goal -> {
+                    try {
+                        return goalMapper.toResponse(goal);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException("Erro ao mapear Goal para GoalResponse", e);
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
@@ -78,7 +85,13 @@ public class GoalServiceImpl implements GoalService {
     @Transactional(readOnly = true)
     public Optional<GoalResponse> findById(Long goalId) {
         return goalRepository.findById(goalId)
-                .map(goalMapper::toResponse);
+                .map(goal -> {
+                    try {
+                        return goalMapper.toResponse(goal);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException("Erro ao converter Goal para GoalResponse", e);
+                    }
+                });
     }
 
     @Override
@@ -99,7 +112,11 @@ public class GoalServiceImpl implements GoalService {
                     goal.setStatus(updatedGoal.getStatus());
                     goal.setNotifications(updatedGoal.getNotifications());
                     Goal savedGoal = goalRepository.save(goal);
-                    return goalMapper.toResponse(savedGoal);
+                    try {
+                        return goalMapper.toResponse(savedGoal);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
                 })
                 .orElseThrow(() -> new GoalNotFoundException(goalId));
     }
@@ -127,7 +144,11 @@ public class GoalServiceImpl implements GoalService {
                         }
                     }
                     Goal savedGoal = goalRepository.save(goal);
-                    return goalMapper.toResponse(savedGoal);
+                    try {
+                        return goalMapper.toResponse(savedGoal);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
                 })
                 .orElseThrow(() -> new GoalNotFoundException(goalId));
     }

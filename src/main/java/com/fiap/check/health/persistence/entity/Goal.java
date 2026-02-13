@@ -73,11 +73,11 @@ public class Goal {
 
    @Embedded
     @AttributeOverrides({
-        @AttributeOverride(name = "title", column = @Column(name = "article_title")),
-        @AttributeOverride(name = "introduction", column = @Column(name = "article_introduction")),
-        @AttributeOverride(name = "conclusion", column = @Column(name = "article_conclusion")),
-        @AttributeOverride(name = "sourceLink", column = @Column(name = "article_source_link")),
-        @AttributeOverride(name = "timestamp", column = @Column(name = "article_timestamp")),
+        @AttributeOverride(name = "titleArticle", column = @Column(name = "article_title", columnDefinition = "TEXT")),
+        @AttributeOverride(name = "introduction", column = @Column(name = "article_introduction", columnDefinition = "TEXT")),
+        @AttributeOverride(name = "conclusion", column = @Column(name = "article_conclusion", columnDefinition = "TEXT")),
+        @AttributeOverride(name = "sourceLink", column = @Column(name = "article_source_link", columnDefinition = "TEXT")),
+        @AttributeOverride(name = "timestamp", column = @Column(name = "article_timestamp", columnDefinition = "TEXT")),
         @AttributeOverride(name = "recommendationsJson", column = @Column(name = "article_recommendations", columnDefinition = "TEXT")),
         @AttributeOverride(name = "quizzesJson", column = @Column(name = "article_quizzes", columnDefinition = "TEXT"))
     })

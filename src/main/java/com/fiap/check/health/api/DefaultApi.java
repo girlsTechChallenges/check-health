@@ -1,5 +1,6 @@
 package com.fiap.check.health.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fiap.check.health.api.model.GoalRequest;
 import com.fiap.check.health.api.model.GoalResponse;
 import com.fiap.check.health.api.model.ProgressRequest;
@@ -39,7 +40,7 @@ public interface DefaultApi {
         value = "/goals",
         produces = { "application/json" }
     )
-    ResponseEntity<List<GoalResponse>> goalsGet();
+    ResponseEntity<List<GoalResponse>> goalsGet() throws JsonProcessingException;
 
     /**
      * POST /goals : Create a new goal
@@ -62,7 +63,7 @@ public interface DefaultApi {
     ResponseEntity<GoalResponse> goalsPost(
         @Parameter(name = "GoalRequest", required = true)
         @Valid @RequestBody GoalRequest goalRequest
-    );
+    ) throws JsonProcessingException;
 
     /**
      * GET /goals/{goal_id} : Get goal details

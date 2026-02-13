@@ -19,24 +19,24 @@ public class ArticleEntity {
     private String title;
 
     @Lob
-    @Column(name = "article_introduction")
+    @Column(name = "article_introduction", columnDefinition = "TEXT")
     private String introduction;
 
     @Lob
-    @Column(name = "article_conclusion")
+    @Column(name = "article_conclusion", columnDefinition = "TEXT")
     private String conclusion;
 
-    @Column(name = "article_source_link")
+    @Column(name = "article_source_link", columnDefinition = "TEXT")
     private String sourceLink;
 
-    @Column(name = "article_timestamp")
+    @Column(name = "article_timestamp", columnDefinition = "TEXT")
     private String timestamp;
 
     @Lob
-    @Column(name = "article_recommendations")
+    @Column(name = "article_recommendations", columnDefinition = "TEXT")
     private String recommendationsJson;
 
     @Lob
-    @Column(name = "article_quizzes")
+    @Column(name = "article_quizzes", columnDefinition = "TEXT")
     private String quizzesJson;
 }

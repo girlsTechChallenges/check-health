@@ -1,6 +1,12 @@
 package com.fiap.check.health.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.check.health.api.model.*;
+import com.fiap.check.health.dto.ArticleResponse;
+import com.fiap.check.health.dto.Quiz;
+import com.fiap.check.health.dto.Recommendation;
 import com.fiap.check.health.model.*;
 import com.fiap.check.health.persistence.entity.Goal;
 
@@ -8,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Component
 public class GoalMapper {
@@ -33,7 +40,7 @@ public class GoalMapper {
                 .build();
     }
 
-    public GoalResponse toResponse(Goal goal) {
+    public GoalResponse toResponse(Goal goal) throws JsonProcessingException {
         if (goal == null) {
             return null;
         }
@@ -44,6 +51,7 @@ public class GoalMapper {
         builder.userId(goal.getUserId());
         builder.title(goal.getTitle());
         builder.status(goal.getStatus());
+        builder.article(toArticleResponse(goal));
         
         if (goal.getCreatedAt() != null) {
             builder.createdAt(OffsetDateTime.of(goal.getCreatedAt(), ZoneOffset.UTC));
@@ -67,6 +75,26 @@ public class GoalMapper {
         }
 
         return builder.build();
+    }
+
+    private ArticleResponse toArticleResponse(Goal goal) throws JsonProcessingException {
+        if (goal == null || goal.getArticleResponse() == null) {
+            return null;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        var quizzes = mapper.readValue(goal.getArticleResponse().getQuizzesJson(), new TypeReference<List<Quiz>>() {});
+        var recommendations = mapper.readValue(goal.getArticleResponse().getRecommendationsJson(), new TypeReference<List<Recommendation>>() {});
+
+        return ArticleResponse.builder()
+                .title(goal.getArticleResponse().getTitle())
+                .introduction(goal.getArticleResponse().getIntroduction())
+                .conclusion(goal.getArticleResponse().getConclusion())
+                .sourceLink(goal.getArticleResponse().getSourceLink())
+                .timestamp(goal.getArticleResponse().getTimestamp())
+                .quizzes(quizzes)
+                .recommendations(recommendations)
+                .build();
     }
 
     private Frequency toFrequencyEntity(GoalRequestFrequency dto) {
@@ -134,5 +162,6 @@ public class GoalMapper {
             case "BEM_ESTAR" -> GoalCategory.BEM_ESTAR;
             default -> throw new IllegalArgumentException("Categoria não reconhecida: " + category.getValue());
         };
+
     }
 }

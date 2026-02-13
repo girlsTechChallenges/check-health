@@ -1,5 +1,6 @@
 package com.fiap.check.health.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fiap.check.health.api.model.GoalRequest;
 import com.fiap.check.health.api.model.GoalResponse;
 import com.fiap.check.health.api.model.ProgressRequest;
@@ -99,7 +100,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve criar uma meta com sucesso")
-        void shouldCreateGoalSuccessfully() {
+        void shouldCreateGoalSuccessfully() throws JsonProcessingException {
             // Given
             when(goalMapper.toEntity(goalRequest)).thenReturn(goalEntity);
             when(goalRepository.save(any(Goal.class))).thenReturn(goalEntity);
@@ -121,7 +122,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve definir status como 'active' ao criar meta")
-        void shouldSetStatusAsActiveWhenCreatingGoal() {
+        void shouldSetStatusAsActiveWhenCreatingGoal() throws JsonProcessingException {
             // Given
             Goal goalToSave = Goal.builder().build();
             when(goalMapper.toEntity(goalRequest)).thenReturn(goalToSave);
@@ -139,7 +140,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve continuar funcionando mesmo se falhar ao publicar evento Kafka")
-        void shouldContinueWorkingEvenIfKafkaEventPublishingFails() {
+        void shouldContinueWorkingEvenIfKafkaEventPublishingFails() throws JsonProcessingException {
             // Given
             when(goalMapper.toEntity(goalRequest)).thenReturn(goalEntity);
             when(goalRepository.save(any(Goal.class))).thenReturn(goalEntity);
@@ -160,7 +161,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve retornar lista de metas com sucesso")
-        void shouldReturnListOfGoalsSuccessfully() {
+        void shouldReturnListOfGoalsSuccessfully() throws JsonProcessingException {
             // Given
             List<Goal> goalEntities = Arrays.asList(goalEntity);
             when(goalRepository.findAll()).thenReturn(goalEntities);
@@ -180,7 +181,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve retornar lista vazia quando não há metas")
-        void shouldReturnEmptyListWhenNoGoalsExist() {
+        void shouldReturnEmptyListWhenNoGoalsExist() throws JsonProcessingException {
             // Given
             when(goalRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -200,7 +201,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve encontrar meta por ID com sucesso")
-        void shouldFindGoalByIdSuccessfully() {
+        void shouldFindGoalByIdSuccessfully() throws JsonProcessingException {
             // Given
             when(goalRepository.findById(1L)).thenReturn(Optional.of(goalEntity));
             when(goalMapper.toResponse(goalEntity)).thenReturn(goalResponse);
@@ -218,7 +219,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve retornar Optional vazio quando meta não for encontrada")
-        void shouldReturnEmptyOptionalWhenGoalNotFound() {
+        void shouldReturnEmptyOptionalWhenGoalNotFound() throws JsonProcessingException {
             // Given
             when(goalRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -238,7 +239,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve atualizar meta com sucesso")
-        void shouldUpdateGoalSuccessfully() {
+        void shouldUpdateGoalSuccessfully() throws JsonProcessingException {
             // Given
             Goal updatedGoalEntity = Goal.builder()
                     .title("Novo título")
@@ -320,7 +321,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve atualizar progresso com sucesso")
-        void shouldUpdateProgressSuccessfully() {
+        void shouldUpdateProgressSuccessfully() throws JsonProcessingException {
             // Given
             Goal goalWithProgress = Goal.builder()
                     .goalId(goalEntity.getGoalId())
@@ -355,7 +356,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve marcar meta como completa quando progresso atingir o total")
-        void shouldMarkGoalAsCompletedWhenProgressReachesTotal() {
+        void shouldMarkGoalAsCompletedWhenProgressReachesTotal() throws JsonProcessingException {
             // Given
             Goal goalAlmostComplete = Goal.builder()
                     .goalId(goalEntity.getGoalId())
@@ -408,7 +409,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve criar goal com progress padrão quando progress é null")
-        void shouldCreateGoalWithDefaultProgressWhenProgressIsNull() {
+        void shouldCreateGoalWithDefaultProgressWhenProgressIsNull() throws JsonProcessingException {
             // Given
             Goal goalWithoutProgress = Goal.builder()
                     .goalId(null)
@@ -455,7 +456,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve continuar criação do goal mesmo quando publicação de evento falha")
-        void shouldContinueGoalCreationWhenEventPublishingFails() {
+        void shouldContinueGoalCreationWhenEventPublishingFails() throws JsonProcessingException {
             // Given
             when(goalMapper.toEntity(any(GoalRequest.class))).thenReturn(goalEntity);
             when(goalRepository.save(any(Goal.class))).thenReturn(goalEntity);
@@ -474,7 +475,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve calcular total correto para diferentes tipos de goal")
-        void shouldCalculateCorrectTotalForDifferentGoalTypes() {
+        void shouldCalculateCorrectTotalForDifferentGoalTypes() throws JsonProcessingException {
             // Test weekly goal
             Goal weeklyGoal = Goal.builder()
                     .type("weekly")
@@ -536,7 +537,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve usar valores padrão quando goal não tem datas definidas")
-        void shouldUseDefaultValuesWhenGoalHasNoDates() {
+        void shouldUseDefaultValuesWhenGoalHasNoDates() throws JsonProcessingException {
             // Given
             Goal goalWithoutDates = Goal.builder()
                     .type("daily")
@@ -562,7 +563,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve usar tipo padrão quando goal type é null")
-        void shouldUseDefaultTypeWhenGoalTypeIsNull() {
+        void shouldUseDefaultTypeWhenGoalTypeIsNull() throws JsonProcessingException {
             // Given
             Goal goalWithNullType = Goal.builder()
                     .type(null)
@@ -588,7 +589,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve marcar goal como completed quando progresso atinge o total")
-        void shouldMarkGoalAsCompletedWhenProgressReachesTotal() {
+        void shouldMarkGoalAsCompletedWhenProgressReachesTotal() throws JsonProcessingException {
             // Given
             Goal goalWithProgress = Goal.builder()
                     .goalId(1L)
@@ -617,7 +618,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve manter status ativo quando progresso não atinge o total")
-        void shouldKeepActiveStatusWhenProgressDoesNotReachTotal() {
+        void shouldKeepActiveStatusWhenProgressDoesNotReachTotal() throws JsonProcessingException {
             // Given
             Goal goalWithProgress = Goal.builder()
                     .goalId(1L)
@@ -646,7 +647,7 @@ class GoalServiceImplTest {
 
         @Test
         @DisplayName("Deve lidar com goal sem progress ao tentar atualizar progresso")
-        void shouldHandleGoalWithoutProgressWhenUpdatingProgress() {
+        void shouldHandleGoalWithoutProgressWhenUpdatingProgress() throws JsonProcessingException {
             // Given
             Goal goalWithoutProgress = Goal.builder()
                     .goalId(1L)

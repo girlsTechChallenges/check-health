@@ -1,5 +1,6 @@
 package com.fiap.check.health.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fiap.check.health.api.DefaultApi;
 import com.fiap.check.health.api.model.GoalRequest;
 import com.fiap.check.health.api.model.GoalResponse;
@@ -22,13 +23,13 @@ public class GoalController implements DefaultApi {
     }
 
     @Override
-    public ResponseEntity<GoalResponse> goalsPost(@Valid GoalRequest goalRequest) {
+    public ResponseEntity<GoalResponse> goalsPost(@Valid GoalRequest goalRequest) throws JsonProcessingException {
         GoalResponse response = goalService.createGoal(goalRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
-    public ResponseEntity<List<GoalResponse>> goalsGet() {
+    public ResponseEntity<List<GoalResponse>> goalsGet() throws JsonProcessingException {
         List<GoalResponse> responses = goalService.listGoals();
         return ResponseEntity.ok(responses);
     }

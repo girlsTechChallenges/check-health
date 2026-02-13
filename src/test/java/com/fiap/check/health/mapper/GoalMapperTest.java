@@ -1,5 +1,6 @@
 package com.fiap.check.health.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fiap.check.health.api.model.GoalRequest;
 import com.fiap.check.health.api.model.GoalRequestFrequency;
 import com.fiap.check.health.api.model.GoalRequestReward;
@@ -94,7 +95,7 @@ class GoalMapperTest {
 
     @Test
     @DisplayName("Deve converter Goal entity para GoalResponse com sucesso")
-    void shouldConvertEntityToGoalResponseSuccessfully() {
+    void shouldConvertEntityToGoalResponseSuccessfully() throws JsonProcessingException {
         // When
         GoalResponse result = goalMapper.toResponse(goalEntity);
 
@@ -109,7 +110,7 @@ class GoalMapperTest {
 
     @Test
     @DisplayName("Deve retornar null quando Goal entity for null")
-    void shouldReturnNullWhenGoalEntityIsNull() {
+    void shouldReturnNullWhenGoalEntityIsNull() throws JsonProcessingException{
         // When
         GoalResponse result = goalMapper.toResponse(null);
 
@@ -149,7 +150,7 @@ class GoalMapperTest {
 
     @Test
     @DisplayName("Deve converter goalId null para string null em GoalResponse")
-    void shouldConvertNullGoalIdToNullStringInResponse() {
+    void shouldConvertNullGoalIdToNullStringInResponse() throws JsonProcessingException{
         // Given
         Goal entityWithNullId = Goal.builder()
                 .goalId(null)
@@ -336,7 +337,7 @@ class GoalMapperTest {
 
     @Test
     @DisplayName("Deve converter goal com progress para response corretamente")
-    void shouldConvertGoalWithProgressToResponseCorrectly() {
+    void shouldConvertGoalWithProgressToResponseCorrectly() throws JsonProcessingException{
         // Given
         com.fiap.check.health.model.Progress progress = com.fiap.check.health.model.Progress.builder()
                 .completed(15)
@@ -368,7 +369,7 @@ class GoalMapperTest {
 
     @Test
     @DisplayName("Deve converter goal com reward para response com gamification")
-    void shouldConvertGoalWithRewardToResponseWithGamification() {
+    void shouldConvertGoalWithRewardToResponseWithGamification() throws JsonProcessingException{
         // Given
         com.fiap.check.health.model.Reward reward = com.fiap.check.health.model.Reward.builder()
                 .points(200)
@@ -397,7 +398,7 @@ class GoalMapperTest {
 
     @Test
     @DisplayName("Deve gerar mensagem de progresso com valores null seguros")
-    void shouldGenerateProgressMessageWithNullSafeValues() {
+    void shouldGenerateProgressMessageWithNullSafeValues() throws JsonProcessingException{
         // Given
         com.fiap.check.health.model.Progress progressWithNulls = com.fiap.check.health.model.Progress.builder()
                 .completed(null)
@@ -424,7 +425,7 @@ class GoalMapperTest {
 
     @Test
     @DisplayName("Deve converter goal sem progress para response sem message")
-    void shouldConvertGoalWithoutProgressToResponseWithoutMessage() {
+    void shouldConvertGoalWithoutProgressToResponseWithoutMessage() throws JsonProcessingException{
         // Given
         Goal goalWithoutProgress = Goal.builder()
                 .goalId(8L)
@@ -450,7 +451,7 @@ class GoalMapperTest {
 
     @Test
     @DisplayName("Deve converter createdAt para OffsetDateTime corretamente")
-    void shouldConvertCreatedAtToOffsetDateTimeCorrectly() {
+    void shouldConvertCreatedAtToOffsetDateTimeCorrectly() throws JsonProcessingException {
         // Given
         LocalDateTime createdAt = LocalDateTime.of(2026, 2, 9, 15, 45, 30);
         Goal goalWithCreatedAt = Goal.builder()
@@ -473,7 +474,7 @@ class GoalMapperTest {
 
     @Test
     @DisplayName("Deve lidar com goal sem createdAt")
-    void shouldHandleGoalWithoutCreatedAt() {
+    void shouldHandleGoalWithoutCreatedAt() throws JsonProcessingException{
         // Given
         Goal goalWithoutCreatedAt = Goal.builder()
                 .goalId(10L)

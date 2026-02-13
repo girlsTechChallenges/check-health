@@ -1,5 +1,6 @@
 package com.fiap.check.health.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fiap.check.health.api.model.GoalRequest;
 import com.fiap.check.health.api.model.GoalResponse;
 import com.fiap.check.health.api.model.ProgressRequest;
@@ -76,7 +77,7 @@ class GoalControllerTest {
 
         @Test
         @DisplayName("Deve criar meta com sucesso e retornar status 201")
-        void shouldCreateGoalSuccessfullyAndReturn201() {
+        void shouldCreateGoalSuccessfullyAndReturn201() throws JsonProcessingException {
             // Given
             when(goalService.createGoal(any(GoalRequest.class))).thenReturn(goalResponse);
 
@@ -98,9 +99,9 @@ class GoalControllerTest {
 
         @Test
         @DisplayName("Deve retornar lista de metas com sucesso")
-        void shouldReturnListOfGoalsSuccessfully() {
+        void shouldReturnListOfGoalsSuccessfully() throws JsonProcessingException {
             // Given
-            when(goalService.listGoals()).thenReturn(Arrays.asList(goalResponse));
+            when(goalService.listGoals()).thenReturn(Collections.singletonList(goalResponse));
 
             // When
             ResponseEntity<List<GoalResponse>> response = goalController.goalsGet();
@@ -114,7 +115,7 @@ class GoalControllerTest {
 
         @Test
         @DisplayName("Deve retornar lista vazia quando não há metas")
-        void shouldReturnEmptyListWhenNoGoalsExist() {
+        void shouldReturnEmptyListWhenNoGoalsExist() throws JsonProcessingException {
             // Given
             when(goalService.listGoals()).thenReturn(Collections.emptyList());
 

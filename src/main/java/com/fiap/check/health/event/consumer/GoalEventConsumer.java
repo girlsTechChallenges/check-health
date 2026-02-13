@@ -67,7 +67,6 @@ public class GoalEventConsumer {
 
                 // Atualiza meta
                 goal.setArticleResponse(entityResponse);
-                goal.setDescription(dto.getIntroduction());
                 goal.setTitle(dto.getTitle());
 
                 goalRepository.save(goal);
