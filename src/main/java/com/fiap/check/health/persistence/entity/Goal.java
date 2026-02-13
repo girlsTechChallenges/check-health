@@ -70,4 +70,16 @@ public class Goal {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+   @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "title", column = @Column(name = "article_title")),
+        @AttributeOverride(name = "introduction", column = @Column(name = "article_introduction")),
+        @AttributeOverride(name = "conclusion", column = @Column(name = "article_conclusion")),
+        @AttributeOverride(name = "sourceLink", column = @Column(name = "article_source_link")),
+        @AttributeOverride(name = "timestamp", column = @Column(name = "article_timestamp")),
+        @AttributeOverride(name = "recommendationsJson", column = @Column(name = "article_recommendations", columnDefinition = "TEXT")),
+        @AttributeOverride(name = "quizzesJson", column = @Column(name = "article_quizzes", columnDefinition = "TEXT"))
+    })
+    private ArticleEntity articleResponse;
 }
