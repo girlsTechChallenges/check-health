@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ArticleResponse {
 
+    private Long goalId;
     private String title;
     private String introduction;
     private String conclusion;

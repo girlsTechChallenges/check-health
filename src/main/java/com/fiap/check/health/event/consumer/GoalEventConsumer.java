@@ -40,12 +40,11 @@ public class GoalEventConsumer {
             // Busca todas as metas do usuário
             List<Goal> goals = goalRepository.findByUserId(String.valueOf(event.getUserId()));
 
-            // Filtra pelo título do ArticleResponse
-            Optional<Goal> goalOpt = goals.stream().filter(g -> event.getArticleResponse().getTitle().toLowerCase()
-                .contains(g.getTitle().toLowerCase())).findFirst();
+            // Filtra pelo goalId do ArticleResponse
+            Optional<Goal> goalOpt = goals.stream().filter(g -> g.getGoalId().equals(event.getArticleResponse().getGoalId())).findFirst();
 
-            log.info("Event title: {}", event.getArticleResponse().getTitle());
-            goals.forEach(g -> log.info("Goal title in DB: {}", g.getTitle()));
+            log.info("Event goalId: {}", event.getArticleResponse().getGoalId());
+            goals.forEach(g -> log.info("Goal goalId in DB: {}", g.getGoalId()));
 
             if (goalOpt.isPresent()) {
                 Goal goal = goalOpt.get();
@@ -73,8 +72,8 @@ public class GoalEventConsumer {
 
                 log.info("Goal {} updated with AI response successfully.", goal.getGoalId());
             } else {
-                log.warn("No Goal found for userId {} with title {}",
-                        event.getUserId(), event.getArticleResponse().getTitle());
+                log.warn("No Goal found for userId {} with goalId {}",
+                        event.getUserId(), event.getArticleResponse().getGoalId());
             }
 
         } catch (Exception e) {
