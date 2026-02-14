@@ -41,9 +41,9 @@ public class GoalEventConsumer {
             List<Goal> goals = goalRepository.findByUserId(String.valueOf(event.getUserId()));
 
             // Filtra pelo goalId do ArticleResponse
-            Optional<Goal> goalOpt = goals.stream().filter(g -> g.getGoalId().equals(event.getArticleResponse().getGoalId())).findFirst();
+            Optional<Goal> goalOpt = goals.stream().filter(g -> g.getGoalId().equals(event.getGoalId())).findFirst();
 
-            log.info("Event goalId: {}", event.getArticleResponse().getGoalId());
+            log.info("Event goalId: {}", event.getGoalId());
             goals.forEach(g -> log.info("Goal goalId in DB: {}", g.getGoalId()));
 
             if (goalOpt.isPresent()) {
@@ -73,7 +73,7 @@ public class GoalEventConsumer {
                 log.info("Goal {} updated with AI response successfully.", goal.getGoalId());
             } else {
                 log.warn("No Goal found for userId {} with goalId {}",
-                        event.getUserId(), event.getArticleResponse().getGoalId());
+                        event.getUserId(), event.getGoalId());
             }
 
         } catch (Exception e) {
