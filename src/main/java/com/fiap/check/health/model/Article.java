@@ -16,6 +16,7 @@ public class Article {
 
     private String messageId;
     private Long userId;
+    private Long goalId;
     private String correlationId;
     private String status;
     private String errorMessage;
