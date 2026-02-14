@@ -96,15 +96,40 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>2.2.20</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>io.swagger.core.v3</groupId>-->
+<!--			<artifactId>swagger-annotations</artifactId>-->
+<!--			<version>2.2.20</version>-->
+<!--		</dependency>-->
+			<!-- Segurança principal -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-security</artifactId>
+			</dependency>
+
+			<!-- OAuth2 Resource Server (JWT Bearer Token) -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+			</dependency>
+
+			<!-- AOP para @PreAuthorize e segurança em métodos -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-aop</artifactId>
+			</dependency>
+
+			<!-- Opcional: biblioteca Nimbus JOSE JWT direta -->
+			<dependency>
+				<groupId>com.nimbusds</groupId>
+				<artifactId>nimbus-jose-jwt</artifactId>
+				<version>9.37.3</version>
+			</dependency>
+
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.6.0</version>
+			<version>2.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
