@@ -3,6 +3,9 @@ spring:
     name: check-health
   config:
     import: optional:configserver:http://config-service:8888
+  jpa:
+    hibernate:
+      ddl-auto: create
 
 server:
   port: 8081
@@ -52,3 +55,9 @@ info:
     encoding: @project.build.sourceEncoding@
     java:
       version: @java.version@
+
+jwt:
+  public:
+    key: classpath:app.pub
+  private:
+    key: classpath:app.key
