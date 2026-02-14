@@ -60,5 +60,34 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9094
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
 
+  check-health-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: check-health-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/checkhealth
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: 'false'
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      SPRING_CLOUD_CONFIG_ENABLED: 'false'
+      SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED: 'false'
+      EUREKA_CLIENT_ENABLED: 'false'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 volumes:
   postgres_data:
